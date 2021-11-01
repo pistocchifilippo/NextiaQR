@@ -1,0 +1,71 @@
+plugins {
+    id 'java'
+}
+
+group 'edu.upc.essi.dtim'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation group: 'org.apache.jena', name: 'apache-jena-libs', version: '4.1.0', ext: 'pom'
+    implementation group: 'org.apache.jena', name: 'jena-querybuilder', version: '4.1.0'
+
+    implementation group: 'net.minidev', name: 'json-smart', version: '2.4.7'
+    implementation group: 'javax.json', name: 'javax.json-api', version: '1.1.4'
+    implementation group: 'org.glassfish', name: 'javax.json', version: '1.1.4'
+    implementation group: 'com.google.guava', name: 'guava', version: '31.0-jre'
+
+    implementation 'org.jgrapht:jgrapht-core:1.2.0'
+
+    //implementation 'org.apache.spark:spark-core_2.11:2.4.3'
+    //implementation 'org.apache.spark:spark-sql_2.11:2.4.3'
+
+    implementation group: 'org.apache.spark', name: 'spark-core_2.13', version: '3.2.0'
+    implementation group: 'org.apache.spark', name: 'spark-sql_2.13', version: '3.2.0'
+
+
+    implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.6'
+    implementation group: 'postgresql', name: 'postgresql', version: '9.1-901-1.jdbc4'
+    implementation group: 'mysql', name: 'mysql-connector-java', version: '5.1.44'
+    implementation group: 'com.opencsv', name: 'opencsv', version: '4.0'
+    implementation group: 'org.mongodb', name: 'mongo-java-driver', version: '3.12.10'
+
+    //compile files('lib/sqlite4java-392/sqlite4java.jar')
+    // https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc
+    implementation group: 'org.xerial', name: 'sqlite-jdbc', version: '3.36.0.3'
+
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.1'
+
+    compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.20'
+    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.20'
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+
+test {
+    useJUnitPlatform()
+}
+//task customFatJar(type: Jar) {
+//    manifest {
+//        attributes 'Main-Class': 'edu.upc.essi.dtim.Nuupdi'
+//    }
+//    baseName = 'all-in-one-jar'
+//    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+//    with jar
+//}
+task uberJar(type: Jar) {
+    archiveClassifier = 'uber'
+
+    from sourceSets.main.output
+
+    dependsOn configurations.runtimeClasspath
+    from {
+        configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
+    }
+}

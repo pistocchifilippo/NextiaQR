@@ -1,0 +1,18 @@
+#Nodes
+s:Person rdf:type G:Concept
+s:Department rdf:type G:Concept
+s:PersonID rdf:type G:Feature
+s:PersonName rdf:type G:Feature
+s:DepartmentID rdf:type G:Feature
+s:DepartmentName rdf:type G:Feature
+#Edges
+s:Person G:hasFeature s:PersonID
+s:Person G:hasFeature s:PersonName
+s:Department G:hasFeature s:DepartmentID
+s:Department G:hasFeature s:DepartmentName
+#IDs
+s:PersonID rdfs:subClassOf sc:identifier
+s:DepartmentID rdfs:subClassOf sc:identifier
+#Concepts relationships
+s:Person s:worksIn s:Department
+#

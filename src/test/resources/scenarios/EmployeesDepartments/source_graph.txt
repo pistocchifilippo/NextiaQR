@@ -1,0 +1,19 @@
+s:WrapperPersons rdf:type S:Wrapper
+s:pId rdf:type S:Attribute
+s:pName rdf:type S:Attribute
+s:dId rdf:type S:Attribute
+s:WrapperPersons S:hasAttribute s:pId
+s:WrapperPersons S:hasAttribute s:pName
+s:WrapperPersons S:hasAttribute s:dId
+s:pId owl:sameAs s:PersonID
+s:pName owl:sameAs s:PersonName
+s:dId owl:sameAs s:DepartmentID
+#
+s:WrapperDeps rdf:type S:Wrapper
+s:x rdf:type S:Attribute
+s:y rdf:type S:Attribute
+s:WrapperDeps S:hasAttribute s:x
+s:WrapperDeps S:hasAttribute s:y
+s:x owl:sameAs s:DepartmentID
+s:y owl:sameAs s:DepartmentName
+#

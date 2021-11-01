@@ -1,0 +1,11 @@
+#q1
+SELECT ?idP ?nameP ?idD ?nameD
+WHERE {
+	VALUES ( ?idP ?nameP ?idD ?nameD ) { ( s:PersonID s:PersonName s:DepartmentID s:DepartmentName ) }
+	s:Person G:hasFeature s:PersonID .
+	s:Person G:hasFeature s:PersonName .
+	s:Person s:worksIn s:Department .
+	s:Department G:hasFeature s:DepartmentID .
+	s:Department G:hasFeature s:DepartmentName .
+}
+#

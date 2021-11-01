@@ -1,0 +1,14 @@
+A graph with 2 concepts Person - worksIn -> Department
+
+Two wrappers
+
+	- persons(pId,pName,dId)
+	- deps(x,y)
+
+We expect a single query
+	persons JOIN deps on persons.dId=deps.x
+
+
+Step 1:
+	[ConjunctiveQuery{projections=serginf:pId, serginf:pName, serginf:x, serginf:y, joinConditions=[serginf:dId=serginf:x ], wrappers=[https://serginf.github.io/WrapperPersons, https://serginf.github.io/WrapperDeps]}]
+
