@@ -8,28 +8,8 @@ import edu.upc.essi.dtim.nextiaqr.models.querying.ConjunctiveQuery;
 import edu.upc.essi.dtim.nextiaqr.models.querying.Wrapper;
 import edu.upc.essi.dtim.nextiaqr.models.querying.wrapper_impl.CSV_Wrapper;
 import edu.upc.essi.dtim.nextiaqr.utils.SQLiteUtils;
-import edu.upc.essi.dtim.nextiaqr.utils.Tuple3;
-import org.apache.jena.graph.Triple;
-import org.apache.jena.ontology.OntModel;
 import org.apache.jena.query.Dataset;
-import org.apache.jena.query.Query;
-import org.apache.jena.query.QueryFactory;
-import org.apache.jena.rdf.model.InfModel;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.impl.PropertyImpl;
-import org.apache.jena.rdf.model.impl.ResourceImpl;
-import org.apache.jena.reasoner.Reasoner;
-import org.apache.jena.reasoner.ReasonerRegistry;
-import org.apache.jena.sparql.algebra.Algebra;
-import org.apache.jena.sparql.algebra.Op;
-import org.apache.jena.sparql.algebra.op.OpBGP;
-import org.apache.jena.sparql.algebra.op.OpJoin;
-import org.apache.jena.sparql.algebra.op.OpProject;
-import org.apache.jena.sparql.algebra.op.OpTable;
-import org.apache.jena.sparql.core.BasicPattern;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -41,6 +21,7 @@ public class NextiaQR {
     }
 
     public static String toSQL (Set<ConjunctiveQuery> UCQ) {
+        if (UCQ.isEmpty()) return null;
         StringBuilder SQL = new StringBuilder();
         UCQ.forEach(q -> {
             StringBuilder select = new StringBuilder("SELECT ");
@@ -79,28 +60,32 @@ public class NextiaQR {
     }
 
     public static void executeSQL(Set<ConjunctiveQuery> UCQs, String SQL) {
-        Set<Wrapper> wrappersInUCQs = UCQs.stream().map(cq -> cq.getWrappers()).flatMap(wrappers -> wrappers.stream()).collect(Collectors.toSet());
+        if (UCQs.isEmpty() || SQL == null) {
+            System.out.println("The UCQ is empty, no output is generated");
+        } else {
+            Set<Wrapper> wrappersInUCQs = UCQs.stream().map(cq -> cq.getWrappers()).flatMap(wrappers -> wrappers.stream()).collect(Collectors.toSet());
 
-        Set<CSV_Wrapper> CSVWrappers = wrappersInUCQs.stream().map(w -> (CSV_Wrapper)w).collect(Collectors.toSet());
+            Set<CSV_Wrapper> CSVWrappers = wrappersInUCQs.stream().map(w -> (CSV_Wrapper) w).collect(Collectors.toSet());
 
-        CSVWrappers.forEach(w -> {
-            try {
-                w.inferSchema();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
+            CSVWrappers.forEach(w -> {
+                try {
+                    w.inferSchema();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
 
-        CSVWrappers.forEach(w -> {
-            SQLiteUtils.createTable(w);
-            try {
-                w.populate();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-        System.out.println(SQL);
-        System.out.println(SQLiteUtils.executeSelect(SQL));
+            CSVWrappers.forEach(w -> {
+                SQLiteUtils.createTable(w);
+                try {
+                    w.populate();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+            System.out.println(SQL);
+            System.out.println(SQLiteUtils.executeSelect(SQL));
+        }
         //SQLiteUtils.executeSelect(SQL).forEach(d -> data.add(d));
 
         /*
