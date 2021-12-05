@@ -10,6 +10,7 @@ import edu.upc.essi.dtim.nextiaqr.models.querying.wrapper_impl.CSV_Wrapper;
 import edu.upc.essi.dtim.nextiaqr.utils.SQLiteUtils;
 import org.apache.jena.query.Dataset;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -40,6 +41,7 @@ public class NextiaQR {
             //Now do the sorting
             List<String> projections = Lists.newArrayList(withoutDuplicates);//Lists.newArrayList(q.getProjections());
             //projections.sort(Comparator.comparingInt(s -> listOfFeatures.indexOf(QueryRewriting.featuresPerAttribute.get(s))));
+            projections.sort(Comparator.comparingInt(s -> QueryRewriting.projectionOrder.get(QueryRewriting.featuresPerAttribute.get(s))));
             projections.forEach(proj -> select.append("\""+GraphOperations.nn(proj).split("/")[GraphOperations.nn(proj).split("/").length-1]+"\""+","));
             //q.getWrappers().forEach(w -> from.append(wrapperIriToID.get(w.getWrapper())+","));
             q.getWrappers().forEach(w -> from.append(GraphOperations.nn(w.getWrapper())+","));

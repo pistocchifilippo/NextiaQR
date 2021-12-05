@@ -30,11 +30,13 @@ import edu.upc.essi.dtim.nextiaqr.models.graph.*;
 import edu.upc.essi.dtim.nextiaqr.models.querying.*;
 import edu.upc.essi.dtim.nextiaqr.utils.*;
 
+import org.apache.jena.sparql.core.Var;
 import org.jgrapht.Graph;
 import org.jgrapht.Graphs;
 import org.jgrapht.graph.SimpleDirectedGraph;
 
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -60,13 +62,20 @@ public class QueryRewriting {
         return o;
     }
 
+    public static Map<String,Integer> projectionOrder = Maps.newHashMap();
     public static Tuple3<Set<String>, BasicPattern, InfModel> parseSPARQL(String SPARQL, Dataset T) {
         // Compile the SPARQL using ARQ and generate its <pi,phi> representation
         Query q = QueryFactory.create(SPARQL);
         Op ARQ = Algebra.compile(q);
         Set<String> PI = Sets.newHashSet();
         ((OpTable)((OpJoin)((OpProject)ARQ).getSubOp()).getLeft()).getTable().rows().forEachRemaining(r -> {
-            r.vars().forEachRemaining(v -> PI.add(r.get(v).getURI()));
+            int i = 0;
+            for (Iterator<Var> it = r.vars(); it.hasNext(); ) {
+                Var v = it.next();
+                PI.add(r.get(v).getURI());
+                projectionOrder.put(r.get(v).getURI(),i);
+                ++i;
+            }
         });
         BasicPattern PHI_p = ((OpBGP)((OpJoin)((OpProject)ARQ).getSubOp()).getRight()).getPattern();
         OntModel PHI_o_ontmodel = ontologyFromPattern(PHI_p);
