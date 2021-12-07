@@ -12,6 +12,7 @@ import org.apache.jena.query.Dataset;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -21,7 +22,7 @@ public class NextiaQR {
         return QueryRewriting.rewriteToUnionOfConjunctiveQueries(SPARQL,T);
     }
 
-    public static String toSQL (Set<ConjunctiveQuery> UCQ) {
+    public static String toSQL (Set<ConjunctiveQuery> UCQ, Map<String,String> namesLut) {
         if (UCQ.isEmpty()) return null;
         StringBuilder SQL = new StringBuilder();
         UCQ.forEach(q -> {
@@ -42,8 +43,11 @@ public class NextiaQR {
             List<String> projections = Lists.newArrayList(withoutDuplicates);//Lists.newArrayList(q.getProjections());
             //projections.sort(Comparator.comparingInt(s -> listOfFeatures.indexOf(QueryRewriting.featuresPerAttribute.get(s))));
             projections.sort(Comparator.comparingInt(s -> QueryRewriting.projectionOrder.get(QueryRewriting.featuresPerAttribute.get(s))));
-            projections.forEach(proj -> select.append("\""+GraphOperations.nn(proj).split("/")[GraphOperations.nn(proj).split("/").length-1]+"\""+","));
-            //q.getWrappers().forEach(w -> from.append(wrapperIriToID.get(w.getWrapper())+","));
+            if (namesLut != null) {
+                projections.forEach(proj -> select.append(""+GraphOperations.nn(proj).split("/")[GraphOperations.nn(proj).split("/").length-1]+""+" as " + namesLut.get(GraphOperations.nn(proj)) + ","));
+            } else {
+                projections.forEach(proj -> select.append("\""+GraphOperations.nn(proj).split("/")[GraphOperations.nn(proj).split("/").length-1]+"\""+","));
+            }            //q.getWrappers().forEach(w -> from.append(wrapperIriToID.get(w.getWrapper())+","));
             q.getWrappers().forEach(w -> from.append(GraphOperations.nn(w.getWrapper())+","));
             q.getJoinConditions().forEach(j -> where.append(
                     "\""+GraphOperations.nn(j.getLeft_attribute()).split("/")[GraphOperations.nn(j.getLeft_attribute()).split("/").length-1]+"\""+
