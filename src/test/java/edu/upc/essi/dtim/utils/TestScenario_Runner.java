@@ -25,7 +25,7 @@ import java.util.Set;
  */
 public class TestScenario_Runner {
 
-    private static String basePath = "/home/snadal/UPC/Projects/NextiaQR/";
+    private static String basePath = "/Users/filippo/Desktop/NextiaQR/";
 
     public static void main(String[] args) throws Exception {
         if (args.length != 1) throw new Exception("Scenario name not provided");

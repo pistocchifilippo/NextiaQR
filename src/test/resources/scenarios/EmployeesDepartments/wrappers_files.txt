@@ -1,2 +1,2 @@
-https://serginf.github.io/WrapperPersons,/home/snadal/UPC/Projects/ODIN/datasets/scenarios/EmployeesDepartments/deps.csv
-https://serginf.github.io/WrapperDeps,/home/snadal/UPC/Projects/ODIN/datasets/scenarios/EmployeesDepartments/persons.csv
+https://serginf.github.io/WrapperPersons,/Users/filippo/Desktop/NextiaQR/src/test/resources/scenarios/EmployeesDepartments/deps.csv
+https://serginf.github.io/WrapperDeps,/Users/filippo/Desktop/NextiaQR/src/test/resources/scenarios/EmployeesDepartments/persons.csv
