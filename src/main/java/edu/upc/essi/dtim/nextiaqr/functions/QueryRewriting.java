@@ -487,6 +487,7 @@ public class QueryRewriting {
         Set<ConjunctiveQuery> out = ucqs.stream().filter(cq -> minimal(cq.getWrappers(),PHI_p))
                 .filter(cq -> !(cq.getWrappers().size()>1 && cq.getJoinConditions().size()==0))
                 .filter(cq -> covering(cq.getWrappers(),PHI_p))
+                .filter(cq -> cq.getProjections().size() == projectionOrder.size())
                 .collect(Collectors.toSet());
 
         return out;
