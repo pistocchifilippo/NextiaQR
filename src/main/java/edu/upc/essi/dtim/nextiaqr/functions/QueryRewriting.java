@@ -331,8 +331,8 @@ public class QueryRewriting {
                     }
                 });
         /////////////////////////////////////////////////////////////////////////////////////////////////////
-        return candidateCQs;
-/**
+        //return candidateCQs;
+
         Set<ConjunctiveQuery> coveringCQs = Sets.newHashSet();
         while (!candidateCQs.isEmpty()) {
             ConjunctiveQuery Q = candidateCQs.stream().sorted((cq1, cq2) -> {
@@ -353,7 +353,7 @@ public class QueryRewriting {
             getCoveringCQs(phi,Q,candidateCQs,coveringCQs);
         }
         return coveringCQs;
- **/
+
     }
 
     private static Set<Wrapper> getEdgeCoveringWrappers(String s, String t, String e, Dataset T) {
@@ -486,8 +486,9 @@ public class QueryRewriting {
         Set<ConjunctiveQuery> ucqs = G.vertexSet().iterator().next().getCQs();
         Set<ConjunctiveQuery> out = ucqs.stream().filter(cq -> minimal(cq.getWrappers(),PHI_p))
                 .filter(cq -> !(cq.getWrappers().size()>1 && cq.getJoinConditions().size()==0))
+                .filter(cq -> cq.getJoinConditions().size()>=(cq.getWrappers().size()-1))
                 .filter(cq -> covering(cq.getWrappers(),PHI_p))
-                .filter(cq -> cq.getProjections().size() == projectionOrder.size())
+                .filter(cq -> cq.getProjections().size() >= projectionOrder.size())
                 .collect(Collectors.toSet());
 
         return out;
