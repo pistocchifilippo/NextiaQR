@@ -45,11 +45,15 @@ public class NextiaQR_RDFS {
 
         String query = "PREFIX nextiaDI: <http://www.essi.upc.edu/DTIM/NextiaDI/> \n" +
                 "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
+                "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
                 "SELECT ?id ?title " +
                 "WHERE { " +
                 " VALUES (?id ?title) { ( nextiaDI:identifier_idObject nextiaDI:title_title ) } " +
                 " nextiaDI:identifier_idObject  rdfs:domain nextiaDI:artworks_collections . " +
-                " nextiaDI:title_title rdfs:domain nextiaDI:artworks_collections " +
+                " nextiaDI:title_title rdfs:domain nextiaDI:artworks_collections . " +
+                " nextiaDI:artworks_collection rdf:type nextiaDI:IntegrationClass ." +
+                " nextiaDI:identifier_idObject rdf:type nextiaDI:IntegrationDProperty ." +
+                " nextiaDI:title_title rdf:type nextiaDI:IntegrationDProperty " +
                 "}";
 
 
