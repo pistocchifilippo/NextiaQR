@@ -24,8 +24,7 @@ public class NextiaQR_RDFS {
 
     public static Set<ConjunctiveQuery> rewriteToUnionOfConjunctiveQueries(Map<String, Model> sourceGraphs, Model minimal,
                                                                            Map<String, Model> subgraphs, String query) {
-        QueryRewritingRDFS.parseSPARQL(query);
-        return QueryRewriting.rewriteToUnionOfConjunctiveQueries(null,null);
+        return QueryRewritingRDFS.rewriteToUnionOfConjunctiveQueries(sourceGraphs, minimal, subgraphs, query);
     }
 
 
@@ -54,9 +53,8 @@ public class NextiaQR_RDFS {
                 "}";
 
 
-        rewriteToUnionOfConjunctiveQueries(sourceGraphs,minimal,subgraphs,query);
-
-        System.out.println(query);
+        Set<ConjunctiveQuery> cqs = rewriteToUnionOfConjunctiveQueries(sourceGraphs,minimal,subgraphs,query);
+        cqs.forEach(System.out::println);
     }
 
 }

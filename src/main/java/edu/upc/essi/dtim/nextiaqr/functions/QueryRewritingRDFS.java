@@ -17,10 +17,7 @@ import edu.upc.essi.dtim.nextiaqr.utils.Tuple2;
 import edu.upc.essi.dtim.nextiaqr.utils.Tuple3;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.ontology.OntModel;
-import org.apache.jena.query.Dataset;
-import org.apache.jena.query.Query;
-import org.apache.jena.query.QueryFactory;
-import org.apache.jena.query.ResultSet;
+import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.InfModel;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -52,7 +49,7 @@ public class QueryRewritingRDFS {
     private static boolean isWrapper(String w) {
         return w.contains("Wrapper") || w.contains("DataSource");
     }
-
+    
     private static void addTriple(BasicPattern pattern, String s, String p, String o) {
         pattern.add(new Triple(new ResourceImpl(s).asNode(), new PropertyImpl(p).asNode(), new ResourceImpl(o).asNode()));
     }
@@ -139,7 +136,8 @@ public class QueryRewritingRDFS {
 
         // Populate coveredIDsPerWrapperInQuery and queriedIDs
         RDFUtil.runAQuery("SELECT DISTINCT ?g ?f WHERE { GRAPH ?g {" +
-                "?f <" + Namespaces.rdfs.val() + "subClassOf> <" + Namespaces.sc.val() + "identifier> } }",T)
+                "?a <" + Namespaces.rdfs.val() + "subClassOf> <" + Namespaces.sc.val() + "identifier> ." +
+                "?a <" + Namespaces.owl.val() + "sameAs> ?f } }",T)
                 .forEachRemaining(gf -> {
             Wrapper w = new Wrapper(gf.get("g").asResource().getURI());
             if (isWrapper(w.getWrapper())) {
@@ -149,7 +147,7 @@ public class QueryRewritingRDFS {
                 coveredIDsPerWrapperInQuery.compute(w, (wrap, IDs) -> {
                     boolean IDisInTheQuery = false;
                     for (Triple t : queryPattern.getList()) {
-                        if (t.getObject().getURI().equals(ID)) IDisInTheQuery = true;
+                        if (t.getSubject().getURI().equals(ID)) IDisInTheQuery = true;
                     }
                     if (IDisInTheQuery) {
                         IDs.add(ID);
@@ -161,9 +159,17 @@ public class QueryRewritingRDFS {
         });
         // Populate featuresPerAttribute
         RDFUtil.runAQuery("SELECT DISTINCT ?a ?f WHERE { GRAPH ?g {" +
-                "?a <" + Namespaces.owl.val() + "sameAs> ?f } }",T).forEachRemaining(af -> {
+                "?a <" + Namespaces.owl.val() + "sameAs> ?f . " +
+                "?f <" + Namespaces.rdf.val() + "type> <" + Namespaces.rdf.val() + "Property> } }",T).forEachRemaining(af -> {
             featuresPerAttribute.putIfAbsent(af.get("a").asResource().getURI(),af.get("f").asResource().getURI());
         });
+        RDFUtil.runAQuery("SELECT DISTINCT ?a ?f WHERE { GRAPH ?g {" +
+                "?a <" + Namespaces.owl.val() + "sameAs> ?f . " +
+                "?f <" + Namespaces.rdf.val() + "type> <"+Namespaces.nextiadi.val()+"IntegrationDProperty> } }",T).forEachRemaining(af -> {
+            featuresPerAttribute.putIfAbsent(af.get("a").asResource().getURI(),af.get("f").asResource().getURI());
+        });
+
+        XXX PER AQUI XXX
 
         // Populate attributePerFeatureAndWrapper
         allTriplesPerWrapper.forEach((w,triples) -> {
@@ -375,8 +381,14 @@ public class QueryRewritingRDFS {
 
 
     @SuppressWarnings("Duplicates")
-    public static Set<ConjunctiveQuery> rewriteToUnionOfConjunctiveQueries(String SPARQL, Dataset T) {
-        Tuple3<Set<String>, BasicPattern, InfModel> queryStructure = parseSPARQL(SPARQL);
+    public static Set<ConjunctiveQuery> rewriteToUnionOfConjunctiveQueries(Map<String, Model> sourceGraphs, Model minimal,
+                                                                           Map<String, Model> subgraphs, String query) {
+        Tuple3<Set<String>, BasicPattern, InfModel> queryStructure = parseSPARQL(query);
+
+        Dataset T = DatasetFactory.create();
+        T.addNamedModel("minimal",minimal);
+        sourceGraphs.forEach(T::addNamedModel);
+        subgraphs.forEach(T::addNamedModel);
 
         BasicPattern PHI_p = queryStructure._2;
         populateOptimizedStructures(T,PHI_p);
