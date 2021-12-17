@@ -5,14 +5,20 @@ import com.google.common.collect.Maps;
 import edu.upc.essi.dtim.nextiaqr.functions.QueryRewriting;
 import edu.upc.essi.dtim.nextiaqr.functions.QueryRewritingRDFS;
 import edu.upc.essi.dtim.nextiaqr.jena.GraphOperations;
+import edu.upc.essi.dtim.nextiaqr.jena.RDFUtil;
+import edu.upc.essi.dtim.nextiaqr.models.metamodel.Namespaces;
 import edu.upc.essi.dtim.nextiaqr.models.querying.ConjunctiveQuery;
+import edu.upc.essi.dtim.nextiaqr.models.querying.GenericWrapper;
 import edu.upc.essi.dtim.nextiaqr.models.querying.Wrapper;
 import edu.upc.essi.dtim.nextiaqr.models.querying.wrapper_impl.CSV_Wrapper;
 import edu.upc.essi.dtim.nextiaqr.utils.SQLiteUtils;
 import org.apache.jena.query.Dataset;
+import org.apache.jena.query.DatasetFactory;
+import org.apache.jena.query.QuerySolution;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
+import org.glassfish.jersey.internal.guava.Sets;
 
 import java.util.Comparator;
 import java.util.List;
@@ -22,11 +28,96 @@ import java.util.stream.Collectors;
 
 public class NextiaQR_RDFS {
 
-    public static Set<ConjunctiveQuery> rewriteToUnionOfConjunctiveQueries(Map<String, Model> sourceGraphs, Model minimal,
+    public static void rewriteToUnionOfConjunctiveQueries(Map<String, Model> sourceGraphs, Model minimal,
                                                                            Map<String, Model> subgraphs, String query) {
-        return QueryRewritingRDFS.rewriteToUnionOfConjunctiveQueries(sourceGraphs, minimal, subgraphs, query);
+        Dataset T = DatasetFactory.create();
+        T.addNamedModel("minimal",minimal);
+        sourceGraphs.forEach(T::addNamedModel);
+        subgraphs.forEach(T::addNamedModel);
+
+        Set<ConjunctiveQuery> cqs = QueryRewritingRDFS.rewriteToUnionOfConjunctiveQueries(query,T);
+        cqs.forEach(System.out::println);
+        String SQL = toSQL(cqs,T);
+        System.out.println(SQL);
+        executeSQL(cqs,SQL,T);
     }
 
+    public static String toSQL (Set<ConjunctiveQuery> UCQ, Dataset T) {
+        if (UCQ.isEmpty()) return null;
+        StringBuilder SQL = new StringBuilder();
+        UCQ.forEach(q -> {
+            StringBuilder select = new StringBuilder("SELECT ");
+            StringBuilder from = new StringBuilder(" FROM ");
+            StringBuilder where = new StringBuilder(" WHERE ");
+            //Sort the projections as they are indicated in the interface
+            //First remove duplicates based on the features
+            List<String> seenFeatures = Lists.newArrayList();
+            List<String> withoutDuplicates = Lists.newArrayList();
+            q.getProjections().forEach(proj -> {
+                if (!seenFeatures.contains(QueryRewritingRDFS.featuresPerAttribute.get(proj))) {
+                    withoutDuplicates.add(proj);
+                    seenFeatures.add(QueryRewritingRDFS.featuresPerAttribute.get(proj));
+                }
+            });
+            //Now do the sorting
+            List<String> projections = Lists.newArrayList(withoutDuplicates);//Lists.newArrayList(q.getProjections());
+            projections.sort(Comparator.comparingInt(s -> QueryRewritingRDFS.projectionOrder.get(QueryRewritingRDFS.featuresPerAttribute.get(s))));
+            projections.forEach(proj -> {
+                //Get the alias in the source graph
+                String att =  RDFUtil.runAQuery("SELECT ?a WHERE { GRAPH ?g { " +
+                        "<"+proj+"> <"+ Namespaces.nextiaDataSource.val()+"alias> ?a" +
+                        "} }",T).next().get("a").toString();
+                select.append("\""+att+"\""+",");
+            });
+            //q.getWrappers().forEach(w -> from.append(wrapperIriToID.get(w.getWrapper())+","));
+            q.getWrappers().forEach(w -> from.append(GraphOperations.nn(w.getWrapper())+","));
+            q.getJoinConditions().forEach(j -> where.append(
+                    "\""+GraphOperations.nn(j.getLeft_attribute()).split("/")[GraphOperations.nn(j.getLeft_attribute()).split("/").length-1]+"\""+
+                            " = "+
+                            "\""+GraphOperations.nn(j.getRight_attribute()).split("/")[GraphOperations.nn(j.getRight_attribute()).split("/").length-1]+"\""+
+                            " AND "));
+            SQL.append(select.substring(0,select.length()-1));
+            SQL.append(from.substring(0,from.length()-1));
+            if (!where.toString().equals(" WHERE ")) {
+                SQL.append(where.substring(0, where.length() - " AND ".length()));
+            }
+            SQL.append(" UNION ");
+        });
+        String SQLstr = SQL.substring(0,SQL.length()-" UNION ".length())+";";
+        return SQLstr;
+    }
+
+    public static void executeSQL(Set<ConjunctiveQuery> UCQs, String SQL, Dataset T) {
+        if (UCQs.isEmpty() || SQL == null) {
+            System.out.println("The UCQ is empty, no output is generated");
+        } else {
+            Set<Wrapper> wrappersInUCQs = UCQs.stream().map(cq -> cq.getWrappers()).flatMap(wrappers -> wrappers.stream()).collect(Collectors.toSet());
+            Set<GenericWrapper> wrapperImpls = Sets.newHashSet();
+            for (Wrapper w : wrappersInUCQs) {
+                QuerySolution qs = RDFUtil.runAQuery("SELECT ?f ?p ?w WHERE { GRAPH ?g { " +
+                        "<"+w.getWrapper()+"> <"+ Namespaces.nextiaDataSource.val()+"format> ?f ." +
+                        "<"+w.getWrapper()+"> <"+ Namespaces.nextiaDataSource.val()+"path> ?p ." +
+                        "<"+w.getWrapper()+"> <"+ Namespaces.nextiaDataSource.val()+"wrapper> ?w ." +
+                        "} }",T).next();
+                GenericWrapper gw = new GenericWrapper(w.getWrapper());
+                gw.setFormat(qs.get("f").toString());
+                gw.setPath(qs.get("p").toString());
+                gw.setImplementation(qs.get("w").toString());
+
+                wrapperImpls.add(gw);
+            }
+            wrapperImpls.forEach(w -> {
+                SQLiteUtils.createTable(w);
+                try {
+                    w.populate();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+
+            System.out.println("aa");
+        }
+    }
 
     public static void main(String[] args) {
         Map<String, Model> sourceGraphs = Maps.newHashMap();
@@ -56,9 +147,7 @@ public class NextiaQR_RDFS {
                 " nextiaDI:title_title rdf:type nextiaDI:IntegrationDProperty " +
                 "}";
 
-
-        Set<ConjunctiveQuery> cqs = rewriteToUnionOfConjunctiveQueries(sourceGraphs,minimal,subgraphs,query);
-        cqs.forEach(System.out::println);
+        rewriteToUnionOfConjunctiveQueries(sourceGraphs,minimal,subgraphs,query);
     }
 
 }

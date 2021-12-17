@@ -123,7 +123,9 @@ public class GraphOperations {
                 .replace(Namespaces.sup.val(), "")
                 .replace(Namespaces.rdfs.val(), "")
                 .replace(Namespaces.owl.val(), "")
-                .replace(Namespaces.serginf.val(), "");
+                .replace(Namespaces.serginf.val(), "")
+                .replace(Namespaces.nextiaDataSource.val(), "")
+                .replace(Namespaces.nextiadi.val(), "");
     }
 
     public String convertToURI(String name) {

@@ -371,8 +371,8 @@ public class QueryRewritingRDFS {
             candidateCQs.remove(Q);
 
             BasicPattern phi = new BasicPattern();
-            F.forEach(f -> phi.add(new Triple(new ResourceImpl(c).asNode(),
-                    new PropertyImpl(GlobalGraph.HAS_FEATURE.val()).asNode(), new ResourceImpl(f).asNode())));
+            F.forEach(f -> phi.add(new Triple(new ResourceImpl(f).asNode(),
+                    new PropertyImpl(Namespaces.rdfs.val()+"domain").asNode(), new ResourceImpl(c).asNode())));
 
 
             getCoveringCQs(phi,Q,candidateCQs,coveringCQs);
@@ -394,15 +394,9 @@ public class QueryRewritingRDFS {
     }
 
     @SuppressWarnings("Duplicates")
-    public static Set<ConjunctiveQuery> rewriteToUnionOfConjunctiveQueries(Map<String, Model> sourceGraphs, Model minimal,
-                                                                           Map<String, Model> subgraphs, String query) {
+    public static Set<ConjunctiveQuery> rewriteToUnionOfConjunctiveQueries(String query, Dataset T) {
         Tuple3<Set<String>, BasicPattern, InfModel> queryStructure = parseSPARQL(query);
 
-        Dataset T = DatasetFactory.create();
-
-        T.addNamedModel("minimal",minimal);
-        sourceGraphs.forEach(T::addNamedModel);
-        subgraphs.forEach(T::addNamedModel);
 
         BasicPattern PHI_p = queryStructure._2;
         populateOptimizedStructures(T,PHI_p);
@@ -534,7 +528,8 @@ public class QueryRewritingRDFS {
         Set<ConjunctiveQuery> out = ucqs.stream().filter(cq -> minimal(cq.getWrappers(),PHI_p))
                 .filter(cq -> !(cq.getWrappers().size()>1 && cq.getJoinConditions().size()==0))
                 .filter(cq -> cq.getJoinConditions().size()>=(cq.getWrappers().size()-1))
-                .filter(cq -> covering(cq.getWrappers(),PHI_p))
+                .filter(cq -> minimal(cq.getWrappers(),PHI_p))
+                //.filter(cq -> covering(cq.getWrappers(),PHI_p))
                 .filter(cq -> cq.getProjections().size() >= projectionOrder.size())
                 .collect(Collectors.toSet());
 
