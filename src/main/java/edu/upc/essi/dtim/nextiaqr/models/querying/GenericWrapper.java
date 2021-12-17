@@ -10,6 +10,7 @@ public class GenericWrapper extends RelationalOperator {
     private String format;
     private String path;
     private String implementation;
+    private String label;
 
     public GenericWrapper(String w) {
         this.wrapper = w;
@@ -53,6 +54,14 @@ public class GenericWrapper extends RelationalOperator {
 
     public void setImplementation(String implementation) {
         this.implementation = implementation;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
     }
 
     @Override

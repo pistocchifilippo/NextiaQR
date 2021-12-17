@@ -12,12 +12,14 @@ import edu.upc.essi.dtim.nextiaqr.models.querying.GenericWrapper;
 import edu.upc.essi.dtim.nextiaqr.models.querying.Wrapper;
 import edu.upc.essi.dtim.nextiaqr.models.querying.wrapper_impl.CSV_Wrapper;
 import edu.upc.essi.dtim.nextiaqr.utils.SQLiteUtils;
+import edu.upc.essi.dtim.nextiaqr.utils.Utils;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
+import org.apache.spark.sql.SparkSession;
 import org.glassfish.jersey.internal.guava.Sets;
 
 import java.util.Comparator;
@@ -67,7 +69,7 @@ public class NextiaQR_RDFS {
                 String att =  RDFUtil.runAQuery("SELECT ?a WHERE { GRAPH ?g { " +
                         "<"+proj+"> <"+ Namespaces.nextiaDataSource.val()+"alias> ?a" +
                         "} }",T).next().get("a").toString();
-                select.append("\""+att+"\""+",");
+                select.append(att+",");
             });
             //q.getWrappers().forEach(w -> from.append(wrapperIriToID.get(w.getWrapper())+","));
             q.getWrappers().forEach(w -> from.append(GraphOperations.nn(w.getWrapper())+","));
@@ -94,28 +96,39 @@ public class NextiaQR_RDFS {
             Set<Wrapper> wrappersInUCQs = UCQs.stream().map(cq -> cq.getWrappers()).flatMap(wrappers -> wrappers.stream()).collect(Collectors.toSet());
             Set<GenericWrapper> wrapperImpls = Sets.newHashSet();
             for (Wrapper w : wrappersInUCQs) {
-                QuerySolution qs = RDFUtil.runAQuery("SELECT ?f ?p ?w WHERE { GRAPH ?g { " +
+                QuerySolution qs = RDFUtil.runAQuery("SELECT ?f ?p ?w ?l WHERE { GRAPH ?g { " +
                         "<"+w.getWrapper()+"> <"+ Namespaces.nextiaDataSource.val()+"format> ?f ." +
                         "<"+w.getWrapper()+"> <"+ Namespaces.nextiaDataSource.val()+"path> ?p ." +
                         "<"+w.getWrapper()+"> <"+ Namespaces.nextiaDataSource.val()+"wrapper> ?w ." +
+                        "<"+w.getWrapper()+"> <"+ Namespaces.rdfs.val()+"label> ?l ." +
                         "} }",T).next();
                 GenericWrapper gw = new GenericWrapper(w.getWrapper());
                 gw.setFormat(qs.get("f").toString());
                 gw.setPath(qs.get("p").toString());
                 gw.setImplementation(qs.get("w").toString());
+                gw.setLabel(qs.get("l").toString());
 
                 wrapperImpls.add(gw);
             }
+
             wrapperImpls.forEach(w -> {
-                SQLiteUtils.createTable(w);
-                try {
-                    w.populate();
-                } catch (Exception e) {
-                    e.printStackTrace();
+                switch (w.getFormat()) {
+                    case "JSON":
+                        Utils.getSparkSession().read().json(w.getPath()).createOrReplaceTempView(w.getLabel());
+                        break;
+                    case "CSV":
+                        Utils.getSparkSession().read().csv(w.getPath()).createOrReplaceTempView(w.getLabel());
+                        break;
                 }
+                Utils.getSparkSession().sql(w.getImplementation()).createOrReplaceTempView(GraphOperations.nn(w.getWrapper()));
             });
 
-            System.out.println("aa");
+            //Add TABLE ALIAS to final SQL
+            for (GenericWrapper w : wrapperImpls) {
+                SQL = SQL.replace(GraphOperations.nn(w.getWrapper()),GraphOperations.nn(w.getWrapper())+ " AS "+w.getLabel());
+            }
+
+            Utils.getSparkSession().sql(SQL).show();
         }
     }
 
