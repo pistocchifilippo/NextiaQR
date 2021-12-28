@@ -54,7 +54,7 @@ public class TestScenario_Runner {
             System.out.println(query._1);
 
             //1 -- Rewrite SPARQL to UCQs
-            Set<ConjunctiveQuery> CQs = NextiaQR.rewriteToUnionOfConjunctiveQueries(query._2,T);
+            Set<ConjunctiveQuery> CQs = NextiaQR.rewriteToUnionOfConjunctiveQueries(query._2,T,query._2);
 
             //2 -- Convert UCQs to SQL
             /**

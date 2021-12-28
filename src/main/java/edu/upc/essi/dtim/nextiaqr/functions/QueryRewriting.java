@@ -370,7 +370,7 @@ public class QueryRewriting {
 
 
     @SuppressWarnings("Duplicates")
-    public static Set<ConjunctiveQuery> rewriteToUnionOfConjunctiveQueries(String SPARQL, Dataset T) {
+    public static Set<ConjunctiveQuery> rewriteToUnionOfConjunctiveQueries(String SPARQL, Dataset T, String SPARQL_REF) {
         Tuple3<Set<String>, BasicPattern, InfModel> queryStructure = parseSPARQL(SPARQL,T);
 
         BasicPattern PHI_p = queryStructure._2;
@@ -491,7 +491,11 @@ public class QueryRewriting {
                 .filter(cq -> cq.getProjections().size() >= projectionOrder.size())
                 .collect(Collectors.toSet());
 
-        return out;
+        //Necessary for implicit aggregations post-process
+        Tuple3<Set<String>, BasicPattern, InfModel> queryStructureRef = parseSPARQL(SPARQL_REF,T);
+        Set<ConjunctiveQuery> pruned = out.stream().filter(cq -> minimal(cq.getWrappers(),queryStructureRef._2))
+                .collect(Collectors.toSet());
+        return pruned;
 
     }
 

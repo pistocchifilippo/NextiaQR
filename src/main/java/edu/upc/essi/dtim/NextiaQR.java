@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
 
 public class NextiaQR {
 
-    public static Set<ConjunctiveQuery> rewriteToUnionOfConjunctiveQueries(String SPARQL, Dataset T) {
-        return QueryRewriting.rewriteToUnionOfConjunctiveQueries(SPARQL,T);
+    public static Set<ConjunctiveQuery> rewriteToUnionOfConjunctiveQueries(String SPARQL, Dataset T, String SPARQL_REF) {
+        return QueryRewriting.rewriteToUnionOfConjunctiveQueries(SPARQL,T,SPARQL_REF);
     }
 
     public static String toSQL (Set<ConjunctiveQuery> UCQ) {
