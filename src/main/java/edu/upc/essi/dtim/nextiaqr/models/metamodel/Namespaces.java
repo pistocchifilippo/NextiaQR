@@ -23,7 +23,9 @@ public enum Namespaces {
 
     sup("http://www.supersede.eu/"),
 
-    serginf("https://serginf.github.io/");
+    serginf("https://serginf.github.io/"),
+    nextiadi("http://www.essi.upc.edu/DTIM/NextiaDI/"),
+    nextiaDataSource("http://www.essi.upc.edu/DTIM/NextiaDI/DataSource/");
 
     private String element;
 

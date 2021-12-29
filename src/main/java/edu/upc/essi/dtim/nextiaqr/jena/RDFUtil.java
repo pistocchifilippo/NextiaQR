@@ -15,6 +15,15 @@ public class RDFUtil {
         return null;
     }
 
+    public static boolean runAskQuery(String askQuery, Dataset ds) {
+        try (QueryExecution qExec = QueryExecutionFactory.create(QueryFactory.create(askQuery), ds)) {
+            return qExec.execAsk();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     //only used in QueryRewritting_EdgeBased and QueryRewritting_Recursive
     public static ResultSet runAQuery(String sparqlQuery, InfModel o) {
         try (QueryExecution qExec = QueryExecutionFactory.create(QueryFactory.create(sparqlQuery), o)) {
