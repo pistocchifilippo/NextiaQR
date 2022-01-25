@@ -338,6 +338,7 @@ public class QueryRewriting {
             ConjunctiveQuery Q = candidateCQs.stream().sorted((cq1, cq2) -> {
                 Set<String> features1 = cq1.getProjections().stream().map(a1 -> featuresPerAttribute.get(a1)).collect(Collectors.toSet());
                 Set<String> features2 = cq2.getProjections().stream().map(a2 -> featuresPerAttribute.get(a2)).collect(Collectors.toSet());
+                if (features1.isEmpty() || features2.isEmpty()) return 0;
                 return Integer.compare(
                         Sets.intersection(featuresPerConceptInQuery.get(c),features1).size(),
                         Sets.intersection(featuresPerConceptInQuery.get(c),features2).size()
