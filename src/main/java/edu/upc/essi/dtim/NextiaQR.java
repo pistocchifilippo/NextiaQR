@@ -61,7 +61,7 @@ public class NextiaQR {
             }
             SQL.append(" UNION ");
         });
-        String SQLstr = SQL.substring(0,SQL.length()-" UNION ".length())+";";
+        String SQLstr = SQL.substring(0,SQL.length()-" UNION ".length())+""; //String SQLstr = SQL.substring(0,SQL.length()-" UNION ".length())+";";
         return SQLstr;
     }
 
