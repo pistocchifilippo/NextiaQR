@@ -1,0 +1,6 @@
+https://serginf.github.io/WrapperLUT1,/Users/filippo/Desktop/Thesis/app/src/main/resources/scenarios/GeographicProductCiRePrCat/WrapperLUT1.csv
+https://serginf.github.io/WrapperW4,/Users/filippo/Desktop/Thesis/app/src/main/resources/scenarios/GeographicProductCiRePrCat/WrapperW4.csv
+https://serginf.github.io/WrapperW1,/Users/filippo/Desktop/Thesis/app/src/main/resources/scenarios/GeographicProductCiRePrCat/WrapperW1.csv
+https://serginf.github.io/WrapperW2,/Users/filippo/Desktop/Thesis/app/src/main/resources/scenarios/GeographicProductCiRePrCat/WrapperW2.csv
+https://serginf.github.io/WrapperW3,/Users/filippo/Desktop/Thesis/app/src/main/resources/scenarios/GeographicProductCiRePrCat/WrapperW3.csv
+https://serginf.github.io/WrapperLUT2,/Users/filippo/Desktop/Thesis/app/src/main/resources/scenarios/GeographicProductCiRePrCat/WrapperLUT2.csv

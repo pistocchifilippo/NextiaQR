@@ -1,0 +1,32 @@
+#q1
+SELECT ?Revenue_f ?Region_f 
+WHERE {
+  VALUES ( ?Revenue_f ?Region_f ) { ( s:Revenue_f s:Region_f ) }
+  s:Sale G:hasFeature s:Revenue_f .
+  s:Sale s:geog s:City .
+  s:City s:partOf s:Region .
+  s:Region G:hasFeature s:Region_f .
+  
+}
+#q2
+SELECT ?Revenue_f ?City_f ?Region_f 
+WHERE {
+  VALUES ( ?Revenue_f ?City_f ?Region_f ) { ( s:Revenue_f s:City_f s:Region_f ) }
+  s:Sale G:hasFeature s:Revenue_f .
+  s:Sale s:geog s:City .
+  s:City G:hasFeature s:City_f .
+  s:City s:partOf s:Region .
+  s:Region G:hasFeature s:Region_f .
+  
+}
+#q3
+SELECT ?Revenue_f ?Region_f 
+WHERE {
+  VALUES ( ?Revenue_f ?Region_f ) { ( s:Revenue_f s:Region_f ) }
+  s:Sale G:hasFeature s:Revenue_f .
+  s:Sale s:geog s:City .
+  s:City s:partOf s:Region .
+  s:Region G:hasFeature s:Region_f .
+  
+}
+#

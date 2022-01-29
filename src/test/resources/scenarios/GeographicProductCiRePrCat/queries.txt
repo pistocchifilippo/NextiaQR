@@ -1,0 +1,70 @@
+#q1
+SELECT ?Revenue_f ?Region_f ?Category_f 
+WHERE {
+  VALUES ( ?Revenue_f ?Region_f ?Category_f ) { ( s:Revenue_f s:Region_f s:Category_f ) }
+  s:Sale G:hasFeature s:Revenue_f .
+  s:Sale s:geog s:City .
+  s:Sale s:prod s:Product .
+  s:City s:partOf s:Region .
+  s:Region G:hasFeature s:Region_f .
+  s:Product s:partOf s:Category .
+  s:Category G:hasFeature s:Category_f .
+  
+}
+#q2
+SELECT ?Revenue_f ?Region_f ?Product_f ?Category_f 
+WHERE {
+  VALUES ( ?Revenue_f ?Region_f ?Product_f ?Category_f ) { ( s:Revenue_f s:Region_f s:Product_f s:Category_f ) }
+  s:Sale G:hasFeature s:Revenue_f .
+  s:Sale s:geog s:City .
+  s:Sale s:prod s:Product .
+  s:City s:partOf s:Region .
+  s:Region G:hasFeature s:Region_f .
+  s:Product G:hasFeature s:Product_f .
+  s:Product s:partOf s:Category .
+  s:Category G:hasFeature s:Category_f .
+  
+}
+#q3
+SELECT ?Revenue_f ?City_f ?Region_f ?Category_f 
+WHERE {
+  VALUES ( ?Revenue_f ?City_f ?Region_f ?Category_f ) { ( s:Revenue_f s:City_f s:Region_f s:Category_f ) }
+  s:Sale G:hasFeature s:Revenue_f .
+  s:Sale s:geog s:City .
+  s:Sale s:prod s:Product .
+  s:City G:hasFeature s:City_f .
+  s:City s:partOf s:Region .
+  s:Region G:hasFeature s:Region_f .
+  s:Product s:partOf s:Category .
+  s:Category G:hasFeature s:Category_f .
+  
+}
+#q4
+SELECT ?Revenue_f ?Product_f ?Category_f ?Region_f ?City_f 
+WHERE {
+  VALUES ( ?Revenue_f ?Product_f ?Category_f ?Region_f ?City_f ) { ( s:Revenue_f s:City_f s:Region_f s:Product_f s:Category_f ) }
+  s:Sale G:hasFeature s:Revenue_f .
+  s:Sale s:geog s:City .
+  s:Sale s:prod s:Product .
+  s:City G:hasFeature s:City_f .
+  s:City s:partOf s:Region .
+  s:Region G:hasFeature s:Region_f .
+  s:Product G:hasFeature s:Product_f .
+  s:Product s:partOf s:Category .
+  s:Category G:hasFeature s:Category_f .
+  
+}
+#q5
+SELECT ?Revenue_f ?Region_f ?Category_f 
+WHERE {
+  VALUES ( ?Revenue_f ?Region_f ?Category_f ) { ( s:Revenue_f s:Region_f s:Category_f ) }
+  s:Sale G:hasFeature s:Revenue_f .
+  s:Sale s:geog s:City .
+  s:Sale s:prod s:Product .
+  s:City s:partOf s:Region .
+  s:Region G:hasFeature s:Region_f .
+  s:Product s:partOf s:Category .
+  s:Category G:hasFeature s:Category_f .
+  
+}
+#

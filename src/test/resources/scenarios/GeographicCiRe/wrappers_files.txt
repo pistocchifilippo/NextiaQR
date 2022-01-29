@@ -1,0 +1,3 @@
+https://serginf.github.io/WrapperW1,/Users/filippo/Desktop/Thesis/app/src/main/resources/scenarios/GeographicCiRe/WrapperW1.csv
+https://serginf.github.io/WrapperW2,/Users/filippo/Desktop/Thesis/app/src/main/resources/scenarios/GeographicCiRe/WrapperW2.csv
+https://serginf.github.io/WrapperLUT1,/Users/filippo/Desktop/Thesis/app/src/main/resources/scenarios/GeographicCiRe/WrapperLUT1.csv
