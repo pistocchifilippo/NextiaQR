@@ -1,0 +1,67 @@
+#q1
+SELECT ?Revenue_f ?Continent_f 
+WHERE {
+  VALUES ( ?Revenue_f ?Continent_f ) { ( s:Revenue_f s:Continent_f ) }
+  s:Sale G:hasFeature s:Revenue_f .
+  s:Sale s:geog s:City .
+  s:City s:partOf s:Region .
+  s:Region s:partOf s:Country .
+  s:Country s:partOf s:Continent .
+  s:Continent G:hasFeature s:Continent_f .
+  
+}
+#q2
+SELECT ?Revenue_f ?Country_f ?Continent_f 
+WHERE {
+  VALUES ( ?Revenue_f ?Country_f ?Continent_f ) { ( s:Revenue_f s:Country_f s:Continent_f ) }
+  s:Sale G:hasFeature s:Revenue_f .
+  s:Sale s:geog s:City .
+  s:City s:partOf s:Region .
+  s:Region s:partOf s:Country .
+  s:Country G:hasFeature s:Country_f .
+  s:Country s:partOf s:Continent .
+  s:Continent G:hasFeature s:Continent_f .
+  
+}
+#q3
+SELECT ?Revenue_f ?Region_f ?Country_f ?Continent_f 
+WHERE {
+  VALUES ( ?Revenue_f ?Region_f ?Country_f ?Continent_f ) { ( s:Revenue_f s:Region_f s:Country_f s:Continent_f ) }
+  s:Sale G:hasFeature s:Revenue_f .
+  s:Sale s:geog s:City .
+  s:City s:partOf s:Region .
+  s:Region G:hasFeature s:Region_f .
+  s:Region s:partOf s:Country .
+  s:Country G:hasFeature s:Country_f .
+  s:Country s:partOf s:Continent .
+  s:Continent G:hasFeature s:Continent_f .
+  
+}
+#q4
+SELECT ?Revenue_f ?Country_f ?Region_f ?Continent_f ?City_f 
+WHERE {
+  VALUES ( ?Revenue_f ?Country_f ?Region_f ?Continent_f ?City_f ) { ( s:Continent_f s:City_f s:Region_f s:Country_f s:Revenue_f ) }
+  s:Sale G:hasFeature s:Revenue_f .
+  s:Sale s:geog s:City .
+  s:City G:hasFeature s:City_f .
+  s:City s:partOf s:Region .
+  s:Region G:hasFeature s:Region_f .
+  s:Region s:partOf s:Country .
+  s:Country G:hasFeature s:Country_f .
+  s:Country s:partOf s:Continent .
+  s:Continent G:hasFeature s:Continent_f .
+  
+}
+#q5
+SELECT ?Revenue_f ?Continent_f 
+WHERE {
+  VALUES ( ?Revenue_f ?Continent_f ) { ( s:Revenue_f s:Continent_f ) }
+  s:Sale G:hasFeature s:Revenue_f .
+  s:Sale s:geog s:City .
+  s:City s:partOf s:Region .
+  s:Region s:partOf s:Country .
+  s:Country s:partOf s:Continent .
+  s:Continent G:hasFeature s:Continent_f .
+  
+}
+#
