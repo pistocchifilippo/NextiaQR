@@ -119,6 +119,14 @@ public class QueryRewriting {
     private static Map<String,Set<String>> featuresPerConceptInQuery = Maps.newHashMap();
 
     private static void populateOptimizedStructures(Dataset T, BasicPattern queryPattern) {
+        allTriplesPerWrapper = Maps.newHashMap();
+        coveredIDsPerWrapperInQuery = Maps.newHashMap();
+        queriedIDs = Sets.newHashSet();
+        featuresPerAttribute = Maps.newHashMap();
+        attributePerFeatureAndWrapper = Maps.newHashMap();
+        featuresPerConceptInQuery = Maps.newHashMap();
+
+
         // Populate allTriplesPerWrapper
         RDFUtil.runAQuery("SELECT DISTINCT ?g WHERE { GRAPH ?g { ?s ?p ?o } }",T).forEachRemaining(w -> {
             String wrapper = w.get("g").asResource().getURI();
