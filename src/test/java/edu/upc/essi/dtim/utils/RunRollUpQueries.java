@@ -51,6 +51,17 @@ public class RunRollUpQueries {
             Set<ConjunctiveQuery> CQs = NextiaQR.rewriteToUnionOfConjunctiveQueries(query._2,T,minimal._2);
             System.out.println(CQs);
             System.out.println();
+            T.end();
+            T.close();
+            FileUtils.deleteDirectory(new File("TestScenarioRunnerDataset"));
+            prefixes = TestUtils.populatePrefixes(scenarioPath + "prefixes.txt");
+            TestUtils.populateTriples(jenaPath, baseURI, scenarioPath + "metamodel.txt", prefixes);
+            TestUtils.populateTriples(jenaPath, baseURI, scenarioPath + "global_graph.txt", prefixes);
+            TestUtils.populateTriples(jenaPath, baseURI,scenarioPath+"source_graph.txt", prefixes);
+            TestUtils.populateMappings(jenaPath,scenarioPath+"mappings.txt",scenarioPath + "global_graph.txt", prefixes);
+            T = TDBFactory.createDataset("TestScenarioRunnerDataset");
+            T.begin(ReadWrite.READ);
+
         }
         T.end();
         T.close();
