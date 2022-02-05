@@ -64,6 +64,8 @@ public class QueryRewriting {
 
     public static Map<String,Integer> projectionOrder = Maps.newHashMap();
     public static Tuple3<Set<String>, BasicPattern, InfModel> parseSPARQL(String SPARQL, Dataset T) {
+        projectionOrder = Maps.newHashMap();
+        
         // Compile the SPARQL using ARQ and generate its <pi,phi> representation
         Query q = QueryFactory.create(SPARQL);
         Op ARQ = Algebra.compile(q);
