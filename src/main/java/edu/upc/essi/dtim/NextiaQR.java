@@ -46,7 +46,9 @@ public class NextiaQR {
                 }
             });
             //Now do the sorting
-            List<String> projections = Lists.newArrayList(withoutDuplicates);//Lists.newArrayList(q.getProjections());
+            List<String> projections = Lists.newArrayList(withoutDuplicates)
+                    .stream().filter(p -> rewritingResult.getProjectionOrder().containsKey(rewritingResult.getFeaturesPerAttribute().get(p))).collect(Collectors.toList());//Lists.newArrayList(q.getProjections());
+
             //projections.sort(Comparator.comparingInt(s -> listOfFeatures.indexOf(QueryRewriting.featuresPerAttribute.get(s))));
             projections.sort(Comparator.comparingInt(s -> rewritingResult.getProjectionOrder().get(rewritingResult.getFeaturesPerAttribute().get(s))));
             if (namesLut != null) {
