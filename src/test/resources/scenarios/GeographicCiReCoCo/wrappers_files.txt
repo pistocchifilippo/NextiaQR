@@ -1,7 +1,7 @@
-https://serginf.github.io/WrapperLUT1,/Users/filippo/Desktop/Thesis/app/src/main/resources/scenarios/GeographicCiReCoCo/WrapperLUT1.csv
-https://serginf.github.io/WrapperW4,/Users/filippo/Desktop/Thesis/app/src/main/resources/scenarios/GeographicCiReCoCo/WrapperW4.csv
-https://serginf.github.io/WrapperLUT2,/Users/filippo/Desktop/Thesis/app/src/main/resources/scenarios/GeographicCiReCoCo/WrapperLUT2.csv
-https://serginf.github.io/WrapperW3,/Users/filippo/Desktop/Thesis/app/src/main/resources/scenarios/GeographicCiReCoCo/WrapperW3.csv
-https://serginf.github.io/WrapperLUT3,/Users/filippo/Desktop/Thesis/app/src/main/resources/scenarios/GeographicCiReCoCo/WrapperLUT3.csv
+https://serginf.github.io/WrapperLUT7,/Users/filippo/Desktop/Thesis/app/src/main/resources/scenarios/GeographicCiReCoCo/WrapperLUT7.csv
 https://serginf.github.io/WrapperW1,/Users/filippo/Desktop/Thesis/app/src/main/resources/scenarios/GeographicCiReCoCo/WrapperW1.csv
+https://serginf.github.io/WrapperW4,/Users/filippo/Desktop/Thesis/app/src/main/resources/scenarios/GeographicCiReCoCo/WrapperW4.csv
+https://serginf.github.io/WrapperW3,/Users/filippo/Desktop/Thesis/app/src/main/resources/scenarios/GeographicCiReCoCo/WrapperW3.csv
+https://serginf.github.io/WrapperLUT6,/Users/filippo/Desktop/Thesis/app/src/main/resources/scenarios/GeographicCiReCoCo/WrapperLUT6.csv
+https://serginf.github.io/WrapperLUT5,/Users/filippo/Desktop/Thesis/app/src/main/resources/scenarios/GeographicCiReCoCo/WrapperLUT5.csv
 https://serginf.github.io/WrapperW2,/Users/filippo/Desktop/Thesis/app/src/main/resources/scenarios/GeographicCiReCoCo/WrapperW2.csv

@@ -75,7 +75,7 @@ public class RunRollUpQueries {
             String SQL = NextiaQR.toSQL(CQ,null);
             System.out.println(SQL);
 
-            
+
             CQs.add(CQ);
 
         }
