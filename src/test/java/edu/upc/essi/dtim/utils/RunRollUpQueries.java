@@ -55,7 +55,7 @@ public class RunRollUpQueries {
             System.out.println(CQ);
             System.out.println();
 
-            /*
+
             Map<String,String> iriToCSVPath = Maps.newHashMap();
             Files.readAllLines(new File(scenarioPath+"wrappers_files.txt").toPath()).stream().forEach(s->{
                 iriToCSVPath.put(s.split(",")[0],s.split(",")[1]);
@@ -74,8 +74,10 @@ public class RunRollUpQueries {
             });
             String SQL = NextiaQR.toSQL(CQ,null);
             System.out.println(SQL);
+
+            
             CQs.add(CQ);
-             */
+
         }
 
 
