@@ -5,6 +5,7 @@ import com.google.common.collect.Sets;
 import edu.upc.essi.dtim.NextiaQR;
 import edu.upc.essi.dtim.nextiaqr.functions.QueryRewriting;
 import edu.upc.essi.dtim.nextiaqr.models.querying.ConjunctiveQuery;
+import edu.upc.essi.dtim.nextiaqr.models.querying.RewritingResult;
 import edu.upc.essi.dtim.nextiaqr.models.querying.Wrapper;
 import edu.upc.essi.dtim.nextiaqr.models.querying.wrapper_impl.CSV_Wrapper;
 import edu.upc.essi.dtim.nextiaqr.utils.Tuple2;
@@ -54,33 +55,19 @@ public class TestScenario_Runner {
             System.out.println(query._1);
 
             //1 -- Rewrite SPARQL to UCQs
-            Set<ConjunctiveQuery> CQs = NextiaQR.rewriteToUnionOfConjunctiveQueries(query._2,T,query._2);
+            RewritingResult CQs = NextiaQR.rewriteToUnionOfConjunctiveQueries(query._2,T,query._2);
 
             //2 -- Convert UCQs to SQL
             /**
              * Here we assume all wrappers are CSV and there exists a file 'wrappers_files.txt' that
              * maps the wrapper IRI  a file path
              */
-            Map<String,String> iriToCSVPath = Maps.newHashMap();
-            Files.readAllLines(new File(scenarioPath+"wrappers_files.txt").toPath()).stream().forEach(s->{
-                iriToCSVPath.put(s.split(",")[0],s.split(",")[1]);
-            });
-            CQs.forEach(cq -> {
-                Set<Wrapper> CSV_Wrappers = Sets.newHashSet();
-                cq.getWrappers().forEach(w -> {
-                    CSV_Wrapper csv = new CSV_Wrapper(w.getWrapper());
-                    csv.setPath(iriToCSVPath.get(w.getWrapper()));
-                    csv.setHeaderInFirstRow(true);
-                    csv.setColumnDelimiter(",");
-                    csv.setRowDelimiter("\n");
-                    CSV_Wrappers.add(csv);
-                });
-                cq.setWrappers(CSV_Wrappers);
-            });
             String SQL = NextiaQR.toSQL(CQs,null);
-
-            //3 -- Convert SQL to DATA
-            NextiaQR.executeSQL(CQs,SQL);
+            System.out.println(SQL);
+//            String SQL = NextiaQR.toSQL(CQs,null);
+//
+//            //3 -- Convert SQL to DATA
+//            NextiaQR.executeSQL(CQs,SQL);
         }
         T.end();
         T.close();

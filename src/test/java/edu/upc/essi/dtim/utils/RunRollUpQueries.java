@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import edu.upc.essi.dtim.NextiaQR;
 import edu.upc.essi.dtim.nextiaqr.models.querying.ConjunctiveQuery;
+import edu.upc.essi.dtim.nextiaqr.models.querying.RewritingResult;
 import edu.upc.essi.dtim.nextiaqr.models.querying.Wrapper;
 import edu.upc.essi.dtim.nextiaqr.models.querying.wrapper_impl.CSV_Wrapper;
 import edu.upc.essi.dtim.nextiaqr.utils.Tuple2;
@@ -51,36 +52,13 @@ public class RunRollUpQueries {
             System.out.println(query._2());
             System.out.println(minimal._2());
             //1 -- Rewrite SPARQL to UCQs
-            Set<ConjunctiveQuery> CQ = NextiaQR.rewriteToUnionOfConjunctiveQueries(query._2,T,minimal._2);
-            System.out.println(CQ);
+            RewritingResult CQ = NextiaQR.rewriteToUnionOfConjunctiveQueries(query._2,T,minimal._2);
+            System.out.println(CQ.getCQs());
             System.out.println();
 
-
-            Map<String,String> iriToCSVPath = Maps.newHashMap();
-            Files.readAllLines(new File(scenarioPath+"wrappers_files.txt").toPath()).stream().forEach(s->{
-                iriToCSVPath.put(s.split(",")[0],s.split(",")[1]);
-            });
-            CQ.forEach(cq -> {
-                Set<Wrapper> CSV_Wrappers = Sets.newHashSet();
-                cq.getWrappers().forEach(w -> {
-                    CSV_Wrapper csv = new CSV_Wrapper(w.getWrapper());
-                    csv.setPath(iriToCSVPath.get(w.getWrapper()));
-                    csv.setHeaderInFirstRow(true);
-                    csv.setColumnDelimiter(",");
-                    csv.setRowDelimiter("\n");
-                    CSV_Wrappers.add(csv);
-                });
-                cq.setWrappers(CSV_Wrappers);
-            });
             String SQL = NextiaQR.toSQL(CQ,null);
             System.out.println(SQL);
-
-
-            CQs.add(CQ);
-
         }
-
-
 
         T.end();
         T.close();
