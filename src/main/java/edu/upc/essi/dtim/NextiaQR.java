@@ -1,10 +1,12 @@
 package edu.upc.essi.dtim;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import edu.upc.essi.dtim.nextiaqr.functions.QueryRewriting;
 import edu.upc.essi.dtim.nextiaqr.jena.GraphOperations;
 import edu.upc.essi.dtim.nextiaqr.models.querying.ConjunctiveQuery;
+import edu.upc.essi.dtim.nextiaqr.models.querying.RewritingResult;
 import edu.upc.essi.dtim.nextiaqr.models.querying.Wrapper;
 import edu.upc.essi.dtim.nextiaqr.models.querying.wrapper_impl.CSV_Wrapper;
 import edu.upc.essi.dtim.nextiaqr.utils.SQLiteUtils;
@@ -17,14 +19,18 @@ import java.util.stream.Collectors;
 
 public class NextiaQR {
 
-    public static Set<ConjunctiveQuery> rewriteToUnionOfConjunctiveQueries(String SPARQL, Dataset T, String SPARQL_REF) {
-        return QueryRewriting.rewriteToUnionOfConjunctiveQueries(SPARQL,T,SPARQL_REF);
+    public static RewritingResult rewriteToUnionOfConjunctiveQueries(String SPARQL, Dataset T, String SPARQL_REF) {
+        RewritingResult res = new RewritingResult();
+        res.setCQs(QueryRewriting.rewriteToUnionOfConjunctiveQueries(SPARQL,T,SPARQL_REF));
+        res.setFeaturesPerAttribute(Maps.newHashMap(QueryRewriting.featuresPerAttribute));
+        res.setProjectionOrder(Maps.newHashMap(QueryRewriting.projectionOrder));
+        return res;
     }
 
-    public static String toSQL (Set<ConjunctiveQuery> UCQ) {
-        if (UCQ.isEmpty()) return null;
+    public static String toSQL (RewritingResult rewritingResult) {
+        if (rewritingResult.getCQs().isEmpty()) return null;
         StringBuilder SQL = new StringBuilder();
-        UCQ.forEach(q -> {
+        rewritingResult.getCQs().forEach(q -> {
             StringBuilder select = new StringBuilder("SELECT ");
             StringBuilder from = new StringBuilder(" FROM ");
             StringBuilder where = new StringBuilder(" WHERE ");
@@ -33,15 +39,15 @@ public class NextiaQR {
             List<String> seenFeatures = Lists.newArrayList();
             List<String> withoutDuplicates = Lists.newArrayList();
             q.getProjections().forEach(proj -> {
-                if (!seenFeatures.contains(QueryRewriting.featuresPerAttribute.get(proj))) {
+                if (!seenFeatures.contains(rewritingResult.getFeaturesPerAttribute().get(proj))) {
                     withoutDuplicates.add(proj);
-                    seenFeatures.add(QueryRewriting.featuresPerAttribute.get(proj));
+                    seenFeatures.add(rewritingResult.getFeaturesPerAttribute().get(proj));
                 }
             });
             //Now do the sorting
             List<String> projections = Lists.newArrayList(withoutDuplicates);//Lists.newArrayList(q.getProjections());
             //projections.sort(Comparator.comparingInt(s -> listOfFeatures.indexOf(QueryRewriting.featuresPerAttribute.get(s))));
-            projections.sort(Comparator.comparingInt(s -> QueryRewriting.projectionOrder.get(QueryRewriting.featuresPerAttribute.get(s))));
+            projections.sort(Comparator.comparingInt(s -> rewritingResult.getProjectionOrder().get(rewritingResult.getFeaturesPerAttribute().get(s))));
             projections.forEach(proj -> select.append("\""+GraphOperations.nn(proj).split("/")[GraphOperations.nn(proj).split("/").length-1]+"\""+","));
             //q.getWrappers().forEach(w -> from.append(wrapperIriToID.get(w.getWrapper())+","));
             q.getWrappers().forEach(w -> from.append(GraphOperations.nn(w.getWrapper())+","));
@@ -70,7 +76,9 @@ public class NextiaQR {
             Set<CSV_Wrapper> CSVWrappers = wrappersInUCQs.stream().map(w -> (CSV_Wrapper) w).collect(Collectors.toSet());
 
             CSVWrappers.forEach(w -> {
-                try {
+
+
+            try {
                     w.inferSchema();
                 } catch (Exception e) {
                     e.printStackTrace();
