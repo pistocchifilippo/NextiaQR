@@ -24,7 +24,7 @@ public class RunRollUpQueries {
     private static String basePath = "/Users/filippo/Desktop/NextiaQR/";
 
     public static void main(String[] args) throws Exception {
-        String scenario = "GeographicCiReCoCo"; // fix with the scenario
+        String scenario = "GeographicCiRe"; // fix with the scenario
         String baseURI = "http://www.essi.upc.edu/~snadal/"+scenario;
         String scenarioPath = basePath + "src/test/resources/scenarios/"+scenario+"/";
 
@@ -46,18 +46,17 @@ public class RunRollUpQueries {
         T.begin(ReadWrite.READ);
 
         final Tuple2<String, String> minimal = queries.remove(0);
-        final List<Set<ConjunctiveQuery>> CQs = new LinkedList<>();
-        final List<String> SQLs = new LinkedList<>();
         for (Tuple2<String, String> query : queries) {
             System.out.println(query._2());
             System.out.println(minimal._2());
             //1 -- Rewrite SPARQL to UCQs
             RewritingResult CQ = NextiaQR.rewriteToUnionOfConjunctiveQueries(query._2,T,minimal._2);
             System.out.println(CQ.getCQs());
-            System.out.println();
 
             String SQL = NextiaQR.toSQL(CQ,null);
-            System.out.println(SQL);
+            System.out.println("QUERY: " + SQL);
+            NextiaQR.executeSQL(CQ.getCQs(),SQL);
+
         }
 
         T.end();
