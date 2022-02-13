@@ -62,7 +62,7 @@ public class TestScenario_Runner {
              * Here we assume all wrappers are CSV and there exists a file 'wrappers_files.txt' that
              * maps the wrapper IRI  a file path
              */
-            String SQL = NextiaQR.toSQL(CQs,null);
+            String SQL = NextiaQR.toSQL(CQs);
             System.out.println(SQL);
 //            String SQL = NextiaQR.toSQL(CQs,null);
 //

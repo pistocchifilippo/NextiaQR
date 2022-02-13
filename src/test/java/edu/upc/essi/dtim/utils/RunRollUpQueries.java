@@ -53,7 +53,7 @@ public class RunRollUpQueries {
             RewritingResult CQ = NextiaQR.rewriteToUnionOfConjunctiveQueries(query._2,T,minimal._2);
             System.out.println(CQ.getCQs());
 
-            String SQL = NextiaQR.toSQL(CQ,null);
+            String SQL = NextiaQR.toSQL(CQ);
             System.out.println("QUERY: " + SQL);
             NextiaQR.executeSQL(CQ.getCQs(),SQL);
 

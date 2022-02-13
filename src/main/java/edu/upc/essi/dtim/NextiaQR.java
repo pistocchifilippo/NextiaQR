@@ -28,7 +28,7 @@ public class NextiaQR {
         return res;
     }
 
-    public static String toSQL (RewritingResult rewritingResult, Map<String,String> namesLut) {
+    public static String toSQLAsRel (RewritingResult rewritingResult, Map<String,String> namesLut) {
         if (rewritingResult.getCQs().isEmpty()) return null;
         StringBuilder SQL = new StringBuilder();
         rewritingResult.getCQs().forEach(q -> {
@@ -70,6 +70,48 @@ public class NextiaQR {
             SQL.append(" UNION ");
         });
         String SQLstr = SQL.substring(0,SQL.length()-" UNION ".length())+""; //String SQLstr = SQL.substring(0,SQL.length()-" UNION ".length())+";";
+        return SQLstr;
+    }
+
+    public static String toSQL (RewritingResult rewritingResult) {
+        if (rewritingResult.getCQs().isEmpty()) return null;
+        StringBuilder SQL = new StringBuilder();
+        rewritingResult.getCQs().forEach(q -> {
+            StringBuilder select = new StringBuilder("SELECT ");
+            StringBuilder from = new StringBuilder(" FROM ");
+            StringBuilder where = new StringBuilder(" WHERE ");
+            //Sort the projections as they are indicated in the interface
+            //First remove duplicates based on the features
+            List<String> seenFeatures = Lists.newArrayList();
+            List<String> withoutDuplicates = Lists.newArrayList();
+            q.getProjections().forEach(proj -> {
+                if (!seenFeatures.contains(rewritingResult.getFeaturesPerAttribute().get(proj))) {
+                    withoutDuplicates.add(proj);
+                    seenFeatures.add(rewritingResult.getFeaturesPerAttribute().get(proj));
+                }
+            });
+            //Now do the sorting
+            List<String> projections = Lists.newArrayList(withoutDuplicates)
+                    .stream().filter(p -> rewritingResult.getProjectionOrder().containsKey(rewritingResult.getFeaturesPerAttribute().get(p))).collect(Collectors.toList());//Lists.newArrayList(q.getProjections());
+
+            //projections.sort(Comparator.comparingInt(s -> listOfFeatures.indexOf(QueryRewriting.featuresPerAttribute.get(s))));
+            projections.sort(Comparator.comparingInt(s -> rewritingResult.getProjectionOrder().get(rewritingResult.getFeaturesPerAttribute().get(s))));
+            projections.forEach(proj -> select.append("\""+GraphOperations.nn(proj).split("/")[GraphOperations.nn(proj).split("/").length-1]+"\""+","));
+            //q.getWrappers().forEach(w -> from.append(wrapperIriToID.get(w.getWrapper())+","));
+            q.getWrappers().forEach(w -> from.append(GraphOperations.nn(w.getWrapper())+","));
+            q.getJoinConditions().forEach(j -> where.append(
+                    "\""+GraphOperations.nn(j.getLeft_attribute()).split("/")[GraphOperations.nn(j.getLeft_attribute()).split("/").length-1]+"\""+
+                            " = "+
+                            "\""+GraphOperations.nn(j.getRight_attribute()).split("/")[GraphOperations.nn(j.getRight_attribute()).split("/").length-1]+"\""+
+                            " AND "));
+            SQL.append(select.substring(0,select.length()-1));
+            SQL.append(from.substring(0,from.length()-1));
+            if (!where.toString().equals(" WHERE ")) {
+                SQL.append(where.substring(0, where.length() - " AND ".length()));
+            }
+            SQL.append(" UNION ");
+        });
+        String SQLstr = SQL.substring(0,SQL.length()-" UNION ".length())+";";
         return SQLstr;
     }
 
